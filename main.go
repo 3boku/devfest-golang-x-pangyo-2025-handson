@@ -7,9 +7,15 @@ import (
 	"devfest-golang-x-pangyo-2025-handson/handlers"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("env 불러오기 실패: ", err)
+	}
+
 	r := gin.Default()
 
 	// 정적 파일 서빙
