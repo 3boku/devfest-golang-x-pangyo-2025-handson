@@ -6,7 +6,7 @@ Go의 강력한 성능과 나노바나나를 활용해, 세상에 하나뿐인 �
 # ⚙️ 개발 환경
 - `Go 1.25.2`
 - `HTML5 / CSS3 / Javascript`
-- **IDE** : Andtigravity
+- **IDE** : Antigravity
 - **Framework**
     - github.com/gin-gonic/gin v1.9.1
     - github.com/google/generative-ai-go v0.19.0
