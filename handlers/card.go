@@ -7,11 +7,13 @@ import (
 	"image"
 	_ "image/jpeg" // JPEG 디코딩 지원
 	"image/png"
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/fogleman/gg"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/image/font/basicfont"
 )
 
 // CreateCardRequest 카드 생성 요청
@@ -120,10 +122,15 @@ func overlayText(bgImage image.Image, message string) (image.Image, error) {
 	}
 
 	// TrueType 폰트 로드 시도
+	fontLoaded := false
 	fontPath := "./fonts/NotoSansKR-Bold.ttf"
 	if err := dc.LoadFontFace(fontPath, fontSize); err != nil {
-		// 폰트 로드 실패 시 기본 설정 사용
-		fontSize = 24
+		log.Printf("폰트 로드 실패 (%s): %v, 기본 폰트 사용", fontPath, err)
+		// 기본 폰트 사용
+		dc.SetFontFace(basicfont.Face7x13)
+		fontSize = 13
+	} else {
+		fontLoaded = true
 	}
 
 	// 텍스트 영역 (하단에 반투명 배경)
@@ -139,12 +146,22 @@ func overlayText(bgImage image.Image, message string) (image.Image, error) {
 		dc.Stroke()
 	}
 
+	// 폰트가 로드된 경우 다시 설정 (그라데이션 그린 후)
+	if fontLoaded {
+		dc.LoadFontFace(fontPath, fontSize)
+	} else {
+		dc.SetFontFace(basicfont.Face7x13)
+	}
+
 	// 메시지를 줄바꿈 처리
 	maxWidth := float64(width) * 0.85
 	lines := wrapText(dc, message, maxWidth)
 
 	// 텍스트 설정 - 그림자 효과
 	lineHeight := fontSize * 1.4
+	if !fontLoaded {
+		lineHeight = 20 // 기본 폰트용 줄 높이
+	}
 
 	// 텍스트 시작 Y 위치 계산 (수직 중앙 정렬)
 	totalTextHeight := float64(len(lines)) * lineHeight

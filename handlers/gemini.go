@@ -60,8 +60,8 @@ func GenerateBackground(c *gin.Context) {
 	}
 	defer client.Close()
 
-	// Gemini 2.0 Flash 모델 사용 (이미지 생성 지원)
-	model := client.GenerativeModel("gemini-2.0-flash-exp")
+	// Gemini 3.0 pro 사용 (Nano Banana Pro)
+	model := client.GenerativeModel("gemini-3-pro-image-preview")
 
 	// 이미지 생성을 위한 설정
 	model.ResponseMIMEType = "text/plain"
