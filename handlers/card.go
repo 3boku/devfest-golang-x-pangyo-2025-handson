@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image"
+	_ "image/jpeg" // JPEG 디코딩 지원
 	"image/png"
 	"net/http"
 	"strings"
