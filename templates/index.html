@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>크리스마스 카드 생성기</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎄 크리스마스 카드 생성기 🎅</h1>
+        <p>Go + Gemini로 만드는 나만의 크리스마스 카드</p>
+
+        <div class="card-generator">
+            <!-- Step 1: 카드 배경 생성 -->
+            <div class="step">
+                <h2>1. 카드 배경 생성</h2>
+                <textarea id="imagePrompt" placeholder="원하는 크리스마스 카드 배경을 설명해주세요. 예: 눈 내리는 숲속의 아늑한 오두막"></textarea>
+                <button id="generateBgBtn" onclick="generateBackground()">배경 생성하기</button>
+            </div>
+
+            <!-- Step 2: 카드 미리보기 및 메시지 입력 -->
+            <div class="step">
+                <h2>2. 메시지 작성</h2>
+                <div class="preview-container">
+                    <div id="cardPreview" class="card-preview">
+                        <p class="placeholder-text">배경을 먼저 생성해주세요</p>
+                    </div>
+                </div>
+                <textarea id="cardMessage" placeholder="카드에 넣을 메시지를 입력하세요. 예: Merry Christmas! 행복한 연말 보내세요~"></textarea>
+                <button id="createCardBtn" onclick="createCard()" disabled>카드 완성하기</button>
+            </div>
+
+            <!-- Step 3: 완성된 카드 -->
+            <div class="step" id="resultSection" style="display: none;">
+                <h2>3. 완성된 카드</h2>
+                <div class="result-container">
+                    <img id="finalCard" src="" alt="완성된 크리스마스 카드">
+                </div>
+                <button onclick="downloadCard()">카드 다운로드</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>생성 중...</p>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
