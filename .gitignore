@@ -1,0 +1,24 @@
+# 바이너리
+christmas-card-app
+*.exe
+
+# 출력 파일
+output/*.png
+output/*.jpg
+
+# 환경 변수
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+vendor/
