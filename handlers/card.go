@@ -123,7 +123,7 @@ func overlayText(bgImage image.Image, message string) (image.Image, error) {
 
 	// TrueType 폰트 로드 시도
 	fontLoaded := false
-	fontPath := "./fonts/NotoSansKR-Bold.ttf"
+	fontPath := "./fonts/ArialUnicode.ttf"
 	if err := dc.LoadFontFace(fontPath, fontSize); err != nil {
 		log.Printf("폰트 로드 실패 (%s): %v, 기본 폰트 사용", fontPath, err)
 		// 기본 폰트 사용
