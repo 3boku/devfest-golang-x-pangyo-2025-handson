@@ -11,7 +11,6 @@ import (
 
 	"github.com/fogleman/gg"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/image/font/basicfont"
 )
 
 // CreateCardRequest 카드 생성 요청
@@ -110,45 +109,58 @@ func overlayText(bgImage image.Image, message string) (image.Image, error) {
 	// 배경 이미지 그리기
 	dc.DrawImage(bgImage, 0, 0)
 
+	// 폰트 크기 계산 (이미지 크기에 비례)
+	fontSize := float64(height) / 15
+	if fontSize < 24 {
+		fontSize = 24
+	}
+	if fontSize > 72 {
+		fontSize = 72
+	}
+
+	// TrueType 폰트 로드 시도
+	fontPath := "./fonts/NotoSansKR-Bold.ttf"
+	if err := dc.LoadFontFace(fontPath, fontSize); err != nil {
+		// 폰트 로드 실패 시 기본 설정 사용
+		fontSize = 24
+	}
+
 	// 텍스트 영역 (하단에 반투명 배경)
-	textBoxHeight := float64(height) * 0.25
+	textBoxHeight := float64(height) * 0.28
 	textBoxY := float64(height) - textBoxHeight
 
-	// 반투명 검은색 배경
-	dc.SetRGBA(0, 0, 0, 0.6)
-	dc.DrawRectangle(0, textBoxY, float64(width), textBoxHeight)
-	dc.Fill()
-
-	// 기본 폰트 사용 (gg 라이브러리의 기본 폰트 대신 basicfont 사용)
-	face := basicfont.Face7x13
-	dc.SetFontFace(face)
-
-	// 텍스트 설정
-	dc.SetRGB(1, 1, 1) // 흰색
-
-	// 텍스트 크기 계산을 위한 스케일 (기본 폰트가 작으므로 여러 줄로 표시)
-	fontSize := 13.0 // basicfont.Face7x13의 높이
-	lineHeight := fontSize * 1.5
-	maxWidth := float64(width) * 0.9
-	padding := float64(width) * 0.05
+	// 반투명 배경 그라데이션 효과
+	for i := 0; i < int(textBoxHeight); i++ {
+		alpha := 0.7 * float64(i) / textBoxHeight
+		dc.SetRGBA(0, 0, 0, alpha)
+		y := textBoxY + float64(i)
+		dc.DrawLine(0, y, float64(width), y)
+		dc.Stroke()
+	}
 
 	// 메시지를 줄바꿈 처리
+	maxWidth := float64(width) * 0.85
 	lines := wrapText(dc, message, maxWidth)
+
+	// 텍스트 설정 - 그림자 효과
+	lineHeight := fontSize * 1.4
 
 	// 텍스트 시작 Y 위치 계산 (수직 중앙 정렬)
 	totalTextHeight := float64(len(lines)) * lineHeight
 	startY := textBoxY + (textBoxHeight-totalTextHeight)/2 + fontSize
 
-	// 각 줄 그리기
+	// 그림자 그리기
+	dc.SetRGBA(0, 0, 0, 0.5)
 	for i, line := range lines {
 		y := startY + float64(i)*lineHeight
-		// 수평 중앙 정렬
-		w, _ := dc.MeasureString(line)
-		x := (float64(width) - w) / 2
-		if x < padding {
-			x = padding
-		}
-		dc.DrawString(line, x, y)
+		dc.DrawStringAnchored(line, float64(width)/2+2, y+2, 0.5, 0.5)
+	}
+
+	// 메인 텍스트 그리기 (흰색)
+	dc.SetRGB(1, 1, 1)
+	for i, line := range lines {
+		y := startY + float64(i)*lineHeight
+		dc.DrawStringAnchored(line, float64(width)/2, y, 0.5, 0.5)
 	}
 
 	return dc.Image(), nil
@@ -157,26 +169,34 @@ func overlayText(bgImage image.Image, message string) (image.Image, error) {
 // wrapText 텍스트를 주어진 너비에 맞게 줄바꿈
 func wrapText(dc *gg.Context, text string, maxWidth float64) []string {
 	var lines []string
-	words := strings.Fields(text)
 
-	if len(words) == 0 {
-		return lines
-	}
+	// 먼저 줄바꿈 문자로 분리
+	paragraphs := strings.Split(text, "\n")
 
-	currentLine := words[0]
+	for _, para := range paragraphs {
+		words := strings.Fields(para)
 
-	for _, word := range words[1:] {
-		testLine := currentLine + " " + word
-		w, _ := dc.MeasureString(testLine)
-
-		if w <= maxWidth {
-			currentLine = testLine
-		} else {
-			lines = append(lines, currentLine)
-			currentLine = word
+		if len(words) == 0 {
+			lines = append(lines, "")
+			continue
 		}
+
+		currentLine := words[0]
+
+		for _, word := range words[1:] {
+			testLine := currentLine + " " + word
+			w, _ := dc.MeasureString(testLine)
+
+			if w <= maxWidth {
+				currentLine = testLine
+			} else {
+				lines = append(lines, currentLine)
+				currentLine = word
+			}
+		}
+
+		lines = append(lines, currentLine)
 	}
 
-	lines = append(lines, currentLine)
 	return lines
 }
