@@ -28,6 +28,7 @@ func main() {
 	api := r.Group("/api")
 	{
 		api.POST("/generate-background", handlers.GenerateBackground)
+		api.POST("/create-card", handlers.CreateCard)
 	}
 
 	// 서버 시작
