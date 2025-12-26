@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>크리스마스 카드 갤러리</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .gallery-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #fff;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .gallery-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease;
+        }
+        .gallery-item:hover {
+            transform: translateY(-5px);
+        }
+        .gallery-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+        }
+        .gallery-message {
+            padding: 15px;
+            color: #fff;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .home-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #d42426;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: background-color 0.3s;
+        }
+        .home-btn:hover {
+            background-color: #b01b1d;
+        }
+        /* Modal styles from generic or custom */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.9); 
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
+            margin-top: 5%;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="gallery-container">
+        <div class="gallery-header">
+            <h1>🎄 크리스마스 카드 갤러리 🎅</h1>
+            <p>모두가 만든 멋진 카드를 감상해보세요!</p>
+            <a href="/" class="home-btn">나만의 카드 만들기</a>
+        </div>
+
+        {{ if not .Cards }}
+            <div style="text-align: center; color: #ccc; margin-top: 50px;">
+                <p>아직 공유된 카드가 없습니다. 첫 번째 카드를 만들어보세요!</p>
+                <p>(또는 Firebase 설정이 완료되지 않았을 수 있습니다)</p>
+            </div>
+        {{ else }}
+            <div class="gallery-grid">
+                {{ range .Cards }}
+                <div class="gallery-item">
+                    <img src="{{ .ImageUrl }}" alt="Christmas Card" class="gallery-image" onclick="openModal(this.src)">
+                    <!-- <div class="gallery-message">{{ .Message }}</div> -->
+                </div>
+                {{ end }}
+            </div>
+        {{ end }}
+    </div>
+
+    <!-- The Modal -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="img01">
+    </div>
+
+    <script>
+        function openModal(src) {
+            var modal = document.getElementById("imageModal");
+            var modalImg = document.getElementById("img01");
+            modal.style.display = "block";
+            modalImg.src = src;
+        }
+
+        function closeModal() {
+            var modal = document.getElementById("imageModal");
+            modal.style.display = "none";
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            var modal = document.getElementById("imageModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
