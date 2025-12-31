@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"fmt"
 	"image"
@@ -10,9 +11,11 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/fogleman/gg"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"golang.org/x/image/font/basicfont"
 )
 
@@ -70,8 +73,39 @@ func CreateCard(c *gin.Context) {
 		return
 	}
 
-	base64Image := base64.StdEncoding.EncodeToString(buf.Bytes())
+	imgBytes := buf.Bytes()
+	base64Image := base64.StdEncoding.EncodeToString(imgBytes)
 	dataUrl := fmt.Sprintf("data:image/png;base64,%s", base64Image)
+
+	// Firebase Storage 업로드 및 Firestore 저장
+	// Firebase 설정이 되어있는 경우에만 시도
+	go func() {
+		cardID := uuid.New().String()
+		filename := fmt.Sprintf("cards/%s.png", cardID)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		publicUrl, err := UploadImageToStorage(ctx, imgBytes, filename)
+		if err != nil {
+			// Firebase 미설정 등의 이유로 실패 시 무시
+			log.Printf("이미지 업로드 건너뜀/실패: %v", err)
+			return
+		}
+
+		meta := CardMetadata{
+			ID:        cardID,
+			ImageUrl:  publicUrl,
+			Message:   req.Message,
+			CreatedAt: time.Now(),
+		}
+
+		if err := SaveCardMetadata(ctx, meta); err != nil {
+			log.Printf("Firestore 저장 실패: %v", err)
+		} else {
+			log.Printf("Gallery에 카드 저장됨: %s", cardID)
+		}
+	}()
 
 	c.JSON(http.StatusOK, CreateCardResponse{
 		Success: true,

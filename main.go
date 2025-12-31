@@ -18,6 +18,10 @@ func main() {
 
 	r := gin.Default()
 
+	// [Optional] Firebase 초기화
+	// 갤러리 기능을 사용할 때만 주석을 해제하세요.
+	// handlers.InitFirebase()
+
 	// 정적 파일 서빙
 	r.Static("/static", "./static")
 	r.Static("/output", "./output")
@@ -29,6 +33,10 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
+
+	// [Optional] 갤러리 페이지
+	// 갤러리 기능을 사용할 때만 주석을 해제하세요.
+	// r.GET("/gallery", handlers.GetGallery)
 
 	// API 라우트
 	api := r.Group("/api")
